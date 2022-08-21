@@ -1,101 +1,86 @@
-import type { NextPage } from "next";
+import type { GetServerSideProps, NextPage } from "next";
+import * as Genius from "genius-lyrics";
 import React from "react";
 import EditableLine from "../components/editable-line";
 
-const CreateLyrics: NextPage = () => {
-  const originalLyrics = [
-    ["You used to call me on my", "You used to, you used to", "Yeah"],
-    [
-      "You used to call me on my cell phone",
-      "Late night when you need my love",
-      "Call me on my cell phone",
-      "Late night when you need my love",
-      "And I know when that hotline bling",
-      "That can only mean one thing",
-      "I know when that hotline bling",
-      "That can only mean one thing",
-    ],
-    [
-      "Ever since I left the city, you",
-      "Got a reputation for yourself now",
-      "Everybody knows and I feel left out",
-      "Girl, you got me down, you got me stressed out",
-      "'Cause ever since I left the city, you",
-      "Started wearing less and goin' out more",
-      "Glasses of champagne out on the dance floor",
-      "Hangin' with some girls I've never seen before",
-    ],
-    [
-      "You used to call me on my cell phone",
-      "Late night when you need my love",
-      "Call me on my cell phone",
-      "Late night when you need my love",
-      "I know when that hotline bling",
-      "That can only mean one thing",
-      "I know when that hotline bling",
-      "That can only mean one thing",
-    ],
-    [
-      "Ever since I left the city, you, you, you",
-      "You and me, we just don't get along",
-      "You make me feel like I did you wrong",
-      "Going places where you don't belong",
-      "Ever since I left the city, you",
-      "You got exactly what you asked for",
-      "Running out of pages in your passport",
-      "Hanging with some girls I've never seen before",
-    ],
-    [
-      "You used to call me on my cell phone",
-      "Late night when you need my love",
-      "Call me on my cell phone",
-      "Late night when you need my love",
-      "And I know when that hotline bling",
-      "That can only mean one thing",
-      "I know when that hotline bling",
-      "That can only mean one thing",
-    ],
-    [
-      "These days, all I do is",
-      "Wonder if you're bendin' over backwards for someone else",
-      "Wonder if you're rollin' up a Backwoods for someone else",
-      "Doing things I taught you, gettin' nasty for someone else",
-      "You don't need no one else",
-      "You don't need nobody else, no",
-      "Why you never alone?",
-      "Why you always touchin' road?",
-      "Used to always stay at home, be a good girl",
-      "You was in the zone",
-      "Yeah, you should just be yourself",
-      "Right now, you're someone else",
-    ],
-    [
-      "You used to call me on my cell phone",
-      "Late night when you need my love",
-      "Call me on my cell phone",
-      "Late night when you need my love",
-      "And I know when that hotline bling",
-      "That can only mean one thing",
-      "I know when that hotline bling",
-      "That can only mean one thing",
-      "Ever since I left the city",
-    ],
-  ];
+const Client = new Genius.Client(process.env.CLIENT_ACCESS);
 
-  return (
-    <div>
-      {originalLyrics.map((paragraph, i) => (
-        <p key={i}>
-          {paragraph.map((line, i) => (
-            <React.Fragment key={i}>
-              <EditableLine originalLine={line} />
-              <br />
-            </React.Fragment>
-          ))}
-        </p>
-      ))}
-    </div>
-  );
+type Props = {
+  artist: string;
+  originalLyrics: string[][];
+  title: string;
+  success: boolean;
+};
+
+const CreateLyrics: NextPage<Props> = ({ originalLyrics, success }: Props) => {
+  if (success) {
+    return (
+      <div>
+        {originalLyrics.map((paragraph, i) => (
+          <p key={i}>
+            {paragraph.map((line, i) => (
+              <React.Fragment key={i}>
+                <EditableLine originalLine={line} />
+                <br />
+              </React.Fragment>
+            ))}
+          </p>
+        ))}
+      </div>
+    );
+  } else {
+    return <p>Error</p>;
+  }
+};
+
+/**
+ *
+ */
+export const getServerSideProps: GetServerSideProps = async ({
+  res,
+  query,
+}) => {
+  if (typeof query.songID === "string") {
+    const songID = parseInt(query.songID);
+    if (isNaN(songID)) {
+      res.statusCode = 400;
+      return {
+        props: { originalLyrics: [], success: false },
+      };
+    }
+
+    let song;
+    try {
+      song = await Client.songs.get(songID);
+    } catch (error) {
+      res.statusCode = 400;
+      return {
+        props: { originalLyrics: [], success: false },
+      };
+    }
+
+    const rawLyrics = await song.lyrics();
+
+    const paragraphs = rawLyrics.split("\n\n").map((paragraph) => {
+      const splitParagraph = paragraph
+        .split("\n")
+        .filter((line) => !(line.startsWith("[") && line.endsWith("]")));
+
+      return splitParagraph;
+    });
+
+    return {
+      props: {
+        artist: song.artist.name,
+        originalLyrics: paragraphs,
+        title: song.title,
+        success: true,
+      },
+    };
+  } else {
+    res.statusCode = 400;
+    return { props: { originalLyrics: [], success: false } };
+  }
 };
 
 export default CreateLyrics;

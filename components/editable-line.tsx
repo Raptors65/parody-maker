@@ -20,9 +20,14 @@ export default function EditableLine({
   const getSyllableStress = (lineString: string) => {
     const syllableStress = [];
 
-    const words = lineString
-      .split(" ")
-      .map((word) => word.replace(",", "").toLowerCase());
+    const words = lineString.split(" ").map((word) => {
+      let newWord = word;
+      if (newWord.endsWith("'s")) {
+        newWord = newWord.slice(0, -2);
+      }
+      return newWord.replaceAll(new RegExp("[,?!.]", "g"), "").toLowerCase();
+    });
+
     for (const word of words) {
       if (word in syllableStressData) {
         syllableStress.push(
