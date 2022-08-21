@@ -1,7 +1,7 @@
 import type { GetServerSideProps, NextPage } from "next";
 import React from "react";
 import EditableLine from "../components/editable-line";
-import Client from "../api/genius";
+import { getLyrics } from "../api/genius";
 
 type Props = {
   artist: string;
@@ -38,26 +38,8 @@ export const getServerSideProps: GetServerSideProps = async ({
   res,
   query,
 }) => {
-  if (typeof query.songID === "string") {
-    const songID = parseInt(query.songID);
-    if (isNaN(songID)) {
-      res.statusCode = 400;
-      return {
-        props: { originalLyrics: [], success: false },
-      };
-    }
-
-    let song;
-    try {
-      song = await Client.songs.get(songID);
-    } catch (error) {
-      res.statusCode = 400;
-      return {
-        props: { originalLyrics: [], success: false },
-      };
-    }
-
-    const rawLyrics = await song.lyrics();
+  if (typeof query.urlID === "string") {
+    const rawLyrics = await getLyrics(decodeURIComponent(query.urlID));
 
     const paragraphs = rawLyrics.split("\n\n").map((paragraph) => {
       const splitParagraph = paragraph
@@ -69,9 +51,7 @@ export const getServerSideProps: GetServerSideProps = async ({
 
     return {
       props: {
-        artist: song.artist.name,
         originalLyrics: paragraphs,
-        title: song.title,
         success: true,
       },
     };

@@ -2,15 +2,10 @@ import type { GetServerSideProps, NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
 import React from "react";
-import Client from "../api/genius";
-
-type ProcessedSong = {
-  id: number;
-  title: string;
-};
+import { Result, searchSongs } from "../api/genius";
 
 type Props = {
-  searchResults: ProcessedSong[];
+  searchResults: Result[];
   searchTerm: string;
 };
 
@@ -27,9 +22,14 @@ const Search: NextPage<Props> = ({ searchResults, searchTerm }: Props) => {
         <h1>Search results: {searchTerm}</h1>
         {searchResults.map((song) => {
           return (
-            <Link key={song.id} href={`/create-lyrics?songID=${song.id}`}>
+            <Link
+              key={song.id}
+              href={`/create-lyrics?urlID=${encodeURIComponent(
+                song.path.slice(1, -7)
+              )}`}
+            >
               <div>
-                <h2>{song.title}</h2>
+                <h2>{song.full_title}</h2>
               </div>
             </Link>
           );
@@ -41,11 +41,8 @@ const Search: NextPage<Props> = ({ searchResults, searchTerm }: Props) => {
 
 export const getServerSideProps: GetServerSideProps = async ({ query }) => {
   if (typeof query.q === "string" && query.q !== "") {
-    const results = await Client.songs.search(query.q);
-    const processedResults = results.map((song) => {
-      return { id: song.id, title: song.fullTitle };
-    });
-    return { props: { searchResults: processedResults, searchTerm: query.q } };
+    const results = await searchSongs(query.q);
+    return { props: { searchResults: results, searchTerm: query.q } };
   } else {
     return { props: { searchResults: [], searchTerm: "" } };
   }
