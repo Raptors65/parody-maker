@@ -13,7 +13,10 @@ const Home: NextPage = () => {
 
       <main>
         <h1>Parody Maker</h1>
-        <p>Enter</p>
+        <p>Search for a song to start from:</p>
+        <form action="/search" method="get">
+          <input type="text" name="q" required />
+        </form>
       </main>
     </div>
   );

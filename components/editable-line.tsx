@@ -25,7 +25,7 @@ export default function EditableLine({
       if (newWord.endsWith("'s")) {
         newWord = newWord.slice(0, -2);
       }
-      return newWord.replaceAll(new RegExp("[,?!.]", "g"), "").toLowerCase();
+      return newWord.replaceAll(new RegExp("[,?!.()]", "g"), "").toLowerCase();
     });
 
     for (const word of words) {
