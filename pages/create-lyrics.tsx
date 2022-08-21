@@ -1,9 +1,7 @@
 import type { GetServerSideProps, NextPage } from "next";
-import * as Genius from "genius-lyrics";
 import React from "react";
 import EditableLine from "../components/editable-line";
-
-const Client = new Genius.Client(process.env.CLIENT_ACCESS);
+import Client from "../api/genius";
 
 type Props = {
   artist: string;
