@@ -73,7 +73,7 @@ export default function EditableLine({
       onKeyDown={(event) =>
         event.key === "Enter" ? setIsEditing(false) : null
       }
-      style={{ color: lineStatus, width: `${lineValue.length}ch` }}
+      style={{ color: lineStatus, width: `${lineValue.length + 2}ch` }}
       value={lineValue}
     />
   ) : (

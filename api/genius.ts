@@ -106,5 +106,5 @@ export async function getLyrics(urlID: string): Promise<string> {
     }
   }
 
-  throw Error;
+  return "";
 }

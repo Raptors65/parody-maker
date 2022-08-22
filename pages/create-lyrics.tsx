@@ -39,7 +39,10 @@ export const getServerSideProps: GetServerSideProps = async ({
   query,
 }) => {
   if (typeof query.urlID === "string") {
-    const rawLyrics = await getLyrics(decodeURIComponent(query.urlID));
+    const rawLyrics = await getLyrics(query.urlID);
+    if (rawLyrics === "") {
+      return { props: { originalLyrics: [], success: false } };
+    }
 
     const paragraphs = rawLyrics.split("\n\n").map((paragraph) => {
       const splitParagraph = paragraph
