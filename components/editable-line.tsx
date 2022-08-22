@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { MutableRefObject, useEffect, useRef, useState } from "react";
 import syllableStressData from "../data/syllable-stress.json";
 
 interface SyllableStressData {
@@ -15,6 +15,11 @@ export default function EditableLine({
   originalLine: string;
 }) {
   const [lineValue, setLineValue] = useState(originalLine);
+  const textareaEl: MutableRefObject<HTMLTextAreaElement | null> = useRef(null);
+
+  useEffect(() => {
+    textareaEl.current!.style.height = `${textareaEl.current?.scrollHeight}px`;
+  }, []);
 
   const getSyllableStress = (lineString: string) => {
     const syllableStress = [];
@@ -67,14 +72,21 @@ export default function EditableLine({
   const lineStatus = checkSyllableStress();
 
   return (
-    <input
-      onChange={(event) => setLineValue(event.target.value)}
+    <textarea
+      onChange={({ target }) => {
+        target.value = target.value.replaceAll("\n", "");
+        setLineValue(target.value);
+        textareaEl.current!.style.height = "auto";
+        textareaEl.current!.style.height = `${textareaEl.current?.scrollHeight}px`;
+      }}
+      ref={textareaEl}
+      rows={1}
       style={{
         border: 0,
         color: lineStatus,
-        width: `${lineValue.length + 2}ch`,
+        width: "100%",
       }}
       value={lineValue}
-    />
+    ></textarea>
   );
 }
