@@ -14,7 +14,6 @@ export default function EditableLine({
 }: {
   originalLine: string;
 }) {
-  const [isEditing, setIsEditing] = useState(false);
   const [lineValue, setLineValue] = useState(originalLine);
 
   const getSyllableStress = (lineString: string) => {
@@ -67,18 +66,15 @@ export default function EditableLine({
 
   const lineStatus = checkSyllableStress();
 
-  return isEditing ? (
+  return (
     <input
       onChange={(event) => setLineValue(event.target.value)}
-      onKeyDown={(event) =>
-        event.key === "Enter" ? setIsEditing(false) : null
-      }
-      style={{ color: lineStatus, width: `${lineValue.length + 2}ch` }}
+      style={{
+        border: 0,
+        color: lineStatus,
+        width: `${lineValue.length + 2}ch`,
+      }}
       value={lineValue}
     />
-  ) : (
-    <span onClick={() => setIsEditing(true)} style={{ color: lineStatus }}>
-      {lineValue}
-    </span>
   );
 }
