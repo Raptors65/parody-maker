@@ -1,8 +1,15 @@
 import React, { MutableRefObject, useEffect, useRef, useState } from "react";
+import { Col, Row } from "react-bootstrap";
 import syllableStressData from "../data/syllable-stress.json";
 
 interface SyllableStressData {
   [key: string]: number[][];
+}
+enum LineStatus {
+  Ideal = "#0a0",
+  Unideal = "#d80",
+  Wrong = "#f00",
+  Unknown = "#555",
 }
 
 /**
@@ -15,6 +22,7 @@ export default function EditableLine({
   originalLine: string;
 }) {
   const [lineValue, setLineValue] = useState(originalLine);
+  const [isFocused, setIsFocused] = useState(false);
   const textareaEl: MutableRefObject<HTMLTextAreaElement | null> = useRef(null);
 
   useEffect(() => {
@@ -45,15 +53,10 @@ export default function EditableLine({
     return syllableStress;
   };
 
-  const checkSyllableStress = () => {
-    const editedSyllableStress = getSyllableStress(lineValue);
-    enum LineStatus {
-      Ideal = "#0a0",
-      Unideal = "#d80",
-      Wrong = "#f00",
-      Unknown = "#555",
-    }
+  const originalLineSS = getSyllableStress(originalLine);
+  const editedSyllableStress = getSyllableStress(lineValue);
 
+  const checkSyllableStress = () => {
     if (originalLineSS === null || editedSyllableStress === null) {
       return LineStatus.Unknown;
     } else if (editedSyllableStress.length !== originalLineSS.length) {
@@ -67,26 +70,43 @@ export default function EditableLine({
     }
   };
 
-  const originalLineSS = getSyllableStress(originalLine);
-
   const lineStatus = checkSyllableStress();
 
   return (
-    <textarea
-      onChange={({ target }) => {
-        target.value = target.value.replaceAll("\n", "");
-        setLineValue(target.value);
-        textareaEl.current!.style.height = "auto";
-        textareaEl.current!.style.height = `${textareaEl.current?.scrollHeight}px`;
-      }}
-      ref={textareaEl}
-      rows={1}
-      style={{
-        border: 0,
-        color: lineStatus,
-        width: "100%",
-      }}
-      value={lineValue}
-    ></textarea>
+    <Row className={isFocused ? "mb-3 mb-md-0" : undefined}>
+      <Col md={6}>
+        <textarea
+          onBlur={() => setIsFocused(false)}
+          onChange={({ target }) => {
+            target.value = target.value.replaceAll("\n", "");
+            setLineValue(target.value);
+            textareaEl.current!.style.height = "auto";
+            textareaEl.current!.style.height = `${textareaEl.current?.scrollHeight}px`;
+          }}
+          onFocus={() => setIsFocused(true)}
+          ref={textareaEl}
+          rows={1}
+          style={{
+            border: 0,
+            color: lineStatus,
+            width: "100%",
+          }}
+          value={lineValue}
+        ></textarea>
+      </Col>
+      <Col md={6}>
+        {originalLineSS && editedSyllableStress && isFocused ? (
+          <>
+            <span style={{ color: LineStatus.Ideal }}>
+              {originalLineSS?.join("-")}
+            </span>{" "}
+            &rarr;{" "}
+            <span style={{ color: lineStatus }}>
+              {editedSyllableStress?.join("-")}
+            </span>
+          </>
+        ) : null}
+      </Col>
+    </Row>
   );
 }

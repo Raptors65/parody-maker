@@ -15,14 +15,13 @@ const CreateLyrics: NextPage<Props> = ({ originalLyrics, success }: Props) => {
     return (
       <div>
         {originalLyrics.map((paragraph, i) => (
-          <p key={i}>
+          <div className="mb-3" key={i}>
             {paragraph.map((line, i) => (
               <React.Fragment key={i}>
                 <EditableLine originalLine={line} />
-                <br />
               </React.Fragment>
             ))}
-          </p>
+          </div>
         ))}
       </div>
     );
