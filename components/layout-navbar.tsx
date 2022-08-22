@@ -2,7 +2,7 @@ import React from "react";
 import { Container, Nav, Navbar } from "react-bootstrap";
 
 /**
- *
+ * Represents the navigation bar of the website.
  * @return {JSX.Element}
  */
 export default function LayoutNavbar() {

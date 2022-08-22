@@ -6,7 +6,7 @@ import LayoutNavbar from "../components/layout-navbar";
 import Head from "next/head";
 
 /**
- *
+ * The root of the app
  * @return {JSX.Element}
  */
 function MyApp({ Component, pageProps }: AppProps) {

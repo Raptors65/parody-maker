@@ -49,8 +49,9 @@ interface Hit {
 }
 
 /**
- *
- * @param {string} q
+ * Searches for songs using the Genius API.
+ * @param {string} q - The search query.
+ * @return {Promise<Result[]>} A Promise that resolves to an array of results.
  */
 export async function searchSongs(q: string): Promise<Result[]> {
   const apiResponse = await fetch(
@@ -73,8 +74,9 @@ export async function searchSongs(q: string): Promise<Result[]> {
 }
 
 /**
- *
- * @param {string} urlID
+ * Gets the lyrics of a specific song.
+ * @param {string} urlID - The URL path, excluding "-lyrics" at the end.
+ * @return {Promise<string>} A Promise that resolves to a string of the lyrics.
  */
 export async function getLyrics(urlID: string): Promise<string> {
   const response = await fetch(`https://genius.com/${urlID}-lyrics`, {

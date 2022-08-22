@@ -30,9 +30,6 @@ const CreateLyrics: NextPage<Props> = ({ originalLyrics, success }: Props) => {
   }
 };
 
-/**
- *
- */
 export const getServerSideProps: GetServerSideProps = async ({
   res,
   query,

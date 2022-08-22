@@ -11,16 +11,15 @@ enum LineStatus {
   Wrong = "#f00",
   Unknown = "#555",
 }
+type Props = {
+  originalLine: string;
+};
 
 /**
- *
+ * Represents a line of a parody.
  * @return {JSX.Element}
  */
-export default function EditableLine({
-  originalLine,
-}: {
-  originalLine: string;
-}) {
+export default function EditableLine({ originalLine }: Props) {
   const [lineValue, setLineValue] = useState(originalLine);
   const [isFocused, setIsFocused] = useState(false);
   const textareaEl: MutableRefObject<HTMLTextAreaElement | null> = useRef(null);
@@ -54,15 +53,15 @@ export default function EditableLine({
   };
 
   const originalLineSS = getSyllableStress(originalLine);
-  const editedSyllableStress = getSyllableStress(lineValue);
+  const editedLineSS = getSyllableStress(lineValue);
 
   const checkSyllableStress = () => {
-    if (originalLineSS === null || editedSyllableStress === null) {
+    if (originalLineSS === null || editedLineSS === null) {
       return LineStatus.Unknown;
-    } else if (editedSyllableStress.length !== originalLineSS.length) {
+    } else if (editedLineSS.length !== originalLineSS.length) {
       return LineStatus.Wrong;
     } else {
-      if (editedSyllableStress.every((v, i) => v === originalLineSS[i])) {
+      if (editedLineSS.every((v, i) => v === originalLineSS[i])) {
         return LineStatus.Ideal;
       } else {
         return LineStatus.Unideal;
@@ -95,15 +94,13 @@ export default function EditableLine({
         ></textarea>
       </Col>
       <Col md={6}>
-        {originalLineSS && editedSyllableStress && isFocused ? (
+        {originalLineSS && editedLineSS && isFocused ? (
           <>
             <span style={{ color: LineStatus.Ideal }}>
               {originalLineSS?.join("-")}
             </span>{" "}
             &rarr;{" "}
-            <span style={{ color: lineStatus }}>
-              {editedSyllableStress?.join("-")}
-            </span>
+            <span style={{ color: lineStatus }}>{editedLineSS?.join("-")}</span>
           </>
         ) : null}
       </Col>
