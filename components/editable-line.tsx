@@ -92,7 +92,10 @@ export default function EditableLine({
             textareaEl.current!.style.height = "auto";
             textareaEl.current!.style.height = `${textareaEl.current?.scrollHeight}px`;
           }}
-          onFocus={handleFocus}
+          onFocus={() => {
+            setIsFocused(true);
+            handleFocus();
+          }}
           onSelect={() =>
             setSelection(
               textareaEl.current!.value.slice(
