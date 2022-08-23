@@ -1,10 +1,8 @@
 import React, { MutableRefObject, useEffect, useRef, useState } from "react";
 import { Col, Row } from "react-bootstrap";
-import syllableStressData from "../data/syllable-stress.json";
+import SyllableData from "../data/syllable-data";
+import WordSuggestions from "./word-suggestions";
 
-interface SyllableStressData {
-  [key: string]: number[][];
-}
 enum LineStatus {
   Ideal = "#0a0",
   Unideal = "#d80",
@@ -12,23 +10,30 @@ enum LineStatus {
   Unknown = "#555",
 }
 type Props = {
+  handleFocus: () => void;
   originalLine: string;
+  wasLastFocused: boolean;
 };
 
 /**
  * Represents a line of a parody.
  * @return {JSX.Element}
  */
-export default function EditableLine({ originalLine }: Props) {
+export default function EditableLine({
+  handleFocus,
+  originalLine,
+  wasLastFocused,
+}: Props) {
   const [lineValue, setLineValue] = useState(originalLine);
   const [isFocused, setIsFocused] = useState(false);
+  const [selection, setSelection] = useState("");
   const textareaEl: MutableRefObject<HTMLTextAreaElement | null> = useRef(null);
 
   useEffect(() => {
     textareaEl.current!.style.height = `${textareaEl.current?.scrollHeight}px`;
   }, []);
 
-  const getSyllableStress = (lineString: string) => {
+  const getSyllables = (lineString: string) => {
     const syllableStress = [];
 
     const words = lineString.split(" ").map((word) => {
@@ -40,25 +45,30 @@ export default function EditableLine({ originalLine }: Props) {
     });
 
     for (const word of words) {
-      if (word in syllableStressData) {
-        syllableStress.push(
-          ...(syllableStressData as SyllableStressData)[word][0]
-        );
+      if (word in SyllableData) {
+        syllableStress.push(...SyllableData[word][0]);
       } else {
-        return null;
+        return undefined;
       }
     }
 
     return syllableStress;
   };
 
+  const getSyllableStress = (lineString: string) => {
+    return getSyllables(lineString)?.map((syllable) =>
+      parseInt(syllable.slice(-1))
+    );
+  };
+
   const originalLineSS = getSyllableStress(originalLine);
-  const editedLineSS = getSyllableStress(lineValue);
+  const editedLineSS = getSyllableStress(lineValue.trim());
+  const selectionSyllables = getSyllables(selection.trim());
 
   const checkSyllableStress = () => {
-    if (originalLineSS === null || editedLineSS === null) {
+    if (originalLineSS === undefined || editedLineSS === undefined) {
       return LineStatus.Unknown;
-    } else if (editedLineSS.length !== originalLineSS.length) {
+    } else if (editedLineSS.length !== originalLineSS?.length) {
       return LineStatus.Wrong;
     } else {
       if (editedLineSS.every((v, i) => v === originalLineSS[i])) {
@@ -82,7 +92,15 @@ export default function EditableLine({ originalLine }: Props) {
             textareaEl.current!.style.height = "auto";
             textareaEl.current!.style.height = `${textareaEl.current?.scrollHeight}px`;
           }}
-          onFocus={() => setIsFocused(true)}
+          onFocus={handleFocus}
+          onSelect={() =>
+            setSelection(
+              textareaEl.current!.value.slice(
+                textareaEl.current!.selectionStart,
+                textareaEl.current!.selectionEnd
+              )
+            )
+          }
           ref={textareaEl}
           rows={1}
           style={{
@@ -92,9 +110,12 @@ export default function EditableLine({ originalLine }: Props) {
           }}
           value={lineValue}
         ></textarea>
+        {wasLastFocused && selectionSyllables ? (
+          <WordSuggestions selectionSyllables={selectionSyllables} />
+        ) : null}
       </Col>
       <Col md={6}>
-        {originalLineSS && editedLineSS && isFocused ? (
+        {originalLineSS && editedLineSS && wasLastFocused ? (
           <>
             <span style={{ color: LineStatus.Ideal }}>
               {originalLineSS?.join("-")}

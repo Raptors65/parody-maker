@@ -1,5 +1,5 @@
 import type { GetServerSideProps, NextPage } from "next";
-import React from "react";
+import React, { useState } from "react";
 import EditableLine from "../components/editable-line";
 import { getLyrics } from "../api/genius";
 
@@ -11,16 +11,24 @@ type Props = {
 };
 
 const CreateLyrics: NextPage<Props> = ({ originalLyrics, success }: Props) => {
+  const [lastFocused, setLastFocused] = useState<string | undefined>(undefined);
+
   if (success) {
     return (
       <div>
         {originalLyrics.map((paragraph, i) => (
           <div className="mb-3" key={i}>
-            {paragraph.map((line, i) => (
-              <React.Fragment key={i}>
-                <EditableLine originalLine={line} />
-              </React.Fragment>
-            ))}
+            {paragraph.map((line, j) => {
+              return (
+                <React.Fragment key={j}>
+                  <EditableLine
+                    handleFocus={() => setLastFocused(`${i}-${j}`)}
+                    wasLastFocused={lastFocused === `${i}-${j}`}
+                    originalLine={line}
+                  />
+                </React.Fragment>
+              );
+            })}
           </div>
         ))}
       </div>
