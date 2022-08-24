@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Col, Form, Row } from "react-bootstrap";
 import SyllableData from "../data/syllable-data";
+import styles from "../styles/WordSuggestions.module.css";
 
 type Props = {
   selectionSyllables: string[];
@@ -20,9 +21,9 @@ export default function WordSuggestions({ selectionSyllables }: Props) {
   );
 
   return (
-    <Row>
+    <Row className={styles.suggestionsBox}>
       <Col xs={6} lg={4}>
-        <Form.Label>Syllables?</Form.Label>
+        <Form.Label className={styles.label}>Match Syllables?</Form.Label>
         {selectionSyllables.map((e, i) => {
           return (
             <Form.Check
@@ -42,7 +43,7 @@ export default function WordSuggestions({ selectionSyllables }: Props) {
         })}
       </Col>
       <Col xs={6} lg={4}>
-        <Form.Label>Stress?</Form.Label>
+        <Form.Label className={styles.label}>Match Stress?</Form.Label>
         {selectionSyllables.map((e, i) => {
           return (
             <Form.Check
@@ -62,8 +63,8 @@ export default function WordSuggestions({ selectionSyllables }: Props) {
         })}
       </Col>
       <Col lg={4}>
-        <Form.Label>Suggestions</Form.Label>
-        <div style={{ maxHeight: "100px", overflowY: "scroll" }}>
+        <Form.Label className={styles.label}>Suggestions</Form.Label>
+        <div className={styles.suggestionsList}>
           {Object.keys(SyllableData)
             .filter((word) =>
               SyllableData[word].some((pronunciation) => {

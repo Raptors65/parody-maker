@@ -1,0 +1,20 @@
+.lineTextarea {
+  border: 0;
+  width: 100%;
+}
+
+.ideal {
+  color: #0a0;
+}
+
+.unideal {
+  color: #d80;
+}
+
+.wrong {
+  color: #f00;
+}
+
+.unknown {
+  color: #555;
+}

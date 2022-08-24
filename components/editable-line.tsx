@@ -2,12 +2,13 @@ import React, { MutableRefObject, useEffect, useRef, useState } from "react";
 import { Col, Row } from "react-bootstrap";
 import SyllableData from "../data/syllable-data";
 import WordSuggestions from "./word-suggestions";
+import styles from "../styles/EditableLine.module.css";
 
 enum LineStatus {
-  Ideal = "#0a0",
-  Unideal = "#d80",
-  Wrong = "#f00",
-  Unknown = "#555",
+  Ideal = "ideal",
+  Unideal = "unideal",
+  Wrong = "wrong",
+  Unknown = "unknown",
 }
 type Props = {
   handleFocus: () => void;
@@ -82,9 +83,18 @@ export default function EditableLine({
   const lineStatus = checkSyllableStress();
 
   return (
-    <Row className={isFocused ? "mb-3 mb-md-0" : undefined}>
+    <Row
+      className={
+        originalLineSS &&
+        editedLineSS &&
+        (isFocused || (wasLastFocused && selectionSyllables))
+          ? "mb-3 mb-md-0"
+          : undefined
+      }
+    >
       <Col md={6}>
         <textarea
+          className={`${styles.lineTextarea} ${styles[lineStatus]}`}
           onBlur={() => setIsFocused(false)}
           onChange={({ target }) => {
             target.value = target.value.replaceAll("\n", "");
@@ -106,11 +116,6 @@ export default function EditableLine({
           }
           ref={textareaEl}
           rows={1}
-          style={{
-            border: 0,
-            color: lineStatus,
-            width: "100%",
-          }}
           value={lineValue}
         ></textarea>
         {wasLastFocused && selectionSyllables ? (
@@ -118,13 +123,15 @@ export default function EditableLine({
         ) : null}
       </Col>
       <Col md={6}>
-        {originalLineSS && editedLineSS && wasLastFocused ? (
+        {originalLineSS &&
+        editedLineSS &&
+        (isFocused || (wasLastFocused && selectionSyllables)) ? (
           <>
-            <span style={{ color: LineStatus.Ideal }}>
-              {originalLineSS?.join("-")}
-            </span>{" "}
+            <span className={styles.ideal}>{originalLineSS?.join("-")}</span>{" "}
             &rarr;{" "}
-            <span style={{ color: lineStatus }}>{editedLineSS?.join("-")}</span>
+            <span className={styles[lineStatus]}>
+              {editedLineSS?.join("-")}
+            </span>
           </>
         ) : null}
       </Col>
