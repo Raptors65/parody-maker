@@ -92,7 +92,10 @@ export default function EditableLine({
           : undefined
       }
     >
-      <Col md={6}>
+      <Col className={styles.originalLine} md={4}>
+        {originalLine}
+      </Col>
+      <Col md={4}>
         <textarea
           className={`${styles.lineTextarea} ${styles[lineStatus]}`}
           onBlur={() => setIsFocused(false)}
@@ -122,7 +125,7 @@ export default function EditableLine({
           <WordSuggestions selectionSyllables={selectionSyllables} />
         ) : null}
       </Col>
-      <Col md={6}>
+      <Col md={4}>
         {originalLineSS &&
         editedLineSS &&
         (isFocused || (wasLastFocused && selectionSyllables)) ? (
