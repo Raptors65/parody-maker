@@ -6,8 +6,12 @@ import { FaSearch } from "react-icons/fa";
 const Search: NextPage = () => {
   return (
     <main className="p-5 mb-4 bg-light rounded-3">
-      <h1 className="text-center">Song Search</h1>
-      <Form action="/search-results" className="m-auto w-sm-50" method="get">
+      <h1 className="mb-3 text-center">Song Search</h1>
+      <Form
+        action="/search-results"
+        className="m-auto col-lg-6 w-sm-50"
+        method="get"
+      >
         <InputGroup>
           <Form.Control
             type="text"
