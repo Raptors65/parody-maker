@@ -20,6 +20,19 @@ export default function WordSuggestions({ selectionSyllables }: Props) {
     Array(selectionSyllables.length).fill(true)
   );
 
+  const handleSyllableChange = (newValue: boolean, i: number) =>
+    setCheckSyllables([
+      ...checkSyllables.slice(0, i),
+      newValue,
+      ...checkSyllables.slice(i + 1),
+    ]);
+  const handleStressChange = (newValue: boolean, i: number) =>
+    setCheckStresses([
+      ...checkStresses.slice(0, i),
+      newValue,
+      ...checkStresses.slice(i + 1),
+    ]);
+
   return (
     <Row className={styles.suggestionsBox}>
       <Col xs={6} lg={4}>
@@ -30,12 +43,8 @@ export default function WordSuggestions({ selectionSyllables }: Props) {
               defaultChecked
               key={i}
               label={i + 1}
-              onChange={(event) =>
-                setCheckSyllables([
-                  ...checkSyllables.slice(0, i),
-                  event.target.checked,
-                  ...checkSyllables.slice(i + 1),
-                ])
+              onChange={({ target: { checked } }) =>
+                handleSyllableChange(checked, i)
               }
               type="checkbox"
             />
@@ -50,12 +59,8 @@ export default function WordSuggestions({ selectionSyllables }: Props) {
               defaultChecked
               key={i}
               label={i + 1}
-              onChange={(event) =>
-                setCheckStresses([
-                  ...checkStresses.slice(0, i),
-                  event.target.checked,
-                  ...checkStresses.slice(i + 1),
-                ])
+              onChange={({ target: { checked } }) =>
+                handleStressChange(checked, i)
               }
               type="checkbox"
             />
@@ -76,7 +81,7 @@ export default function WordSuggestions({ selectionSyllables }: Props) {
                         syllable.slice(0, 2) ===
                           pronunciation[i].slice(0, 2)) && // vowel sound
                       (!checkStresses[i] ||
-                        syllable.slice(-1) === pronunciation[i].slice(-1))
+                        syllable.slice(-1) === pronunciation[i].slice(-1)) // stress
                   )
                 );
               })

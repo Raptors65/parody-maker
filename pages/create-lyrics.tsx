@@ -16,6 +16,8 @@ const CreateLyrics: NextPage<Props> = ({ originalLyrics, success }: Props) => {
   const [lastFocused, setLastFocused] = useState<string | undefined>(undefined);
   const [syllableData, setSyllableData] = useState(SyllableData);
 
+  const handleFocus = (i: number, j: number) => setLastFocused(`${i}-${j}`);
+
   if (success) {
     return (
       <>
@@ -29,7 +31,7 @@ const CreateLyrics: NextPage<Props> = ({ originalLyrics, success }: Props) => {
               {paragraph.map((line, j) => {
                 return (
                   <EditableLine
-                    handleFocus={() => setLastFocused(`${i}-${j}`)}
+                    handleFocus={() => handleFocus(i, j)}
                     key={j}
                     originalLine={line}
                     syllableData={syllableData}

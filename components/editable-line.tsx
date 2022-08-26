@@ -85,13 +85,25 @@ export default function EditableLine({
 
   const lineStatus = checkSyllableStress();
 
+  const handleBlur = () => setIsFocused(false);
+  const handleChange = (target: HTMLTextAreaElement) => {
+    target.value = target.value.replaceAll("\n", "");
+    setLineValue(target.value);
+    textareaEl.current!.style.height = "auto";
+    textareaEl.current!.style.height = `${textareaEl.current?.scrollHeight}px`;
+  };
+  const handleSelect = (target: HTMLTextAreaElement) =>
+    setSelection(
+      target.value.slice(target.selectionStart, target.selectionEnd)
+    );
+
   return (
     <Row
       className={
         originalLineSS &&
         editedLineSS &&
         (isFocused || (wasLastFocused && selectionSyllables))
-          ? "mb-3 mb-md-0"
+          ? "mb-3 mb-md-0" // Add margin to bottom when focused and on a small screen
           : undefined
       }
     >
@@ -101,25 +113,15 @@ export default function EditableLine({
       <Col md={4}>
         <textarea
           className={`${styles.lineTextarea} ${styles[lineStatus]}`}
-          onBlur={() => setIsFocused(false)}
+          onBlur={handleBlur}
           onChange={({ target }) => {
-            target.value = target.value.replaceAll("\n", "");
-            setLineValue(target.value);
-            textareaEl.current!.style.height = "auto";
-            textareaEl.current!.style.height = `${textareaEl.current?.scrollHeight}px`;
+            handleChange(target as HTMLTextAreaElement);
           }}
           onFocus={() => {
             setIsFocused(true);
             handleFocus();
           }}
-          onSelect={() =>
-            setSelection(
-              textareaEl.current!.value.slice(
-                textareaEl.current!.selectionStart,
-                textareaEl.current!.selectionEnd
-              )
-            )
-          }
+          onSelect={({ target }) => handleSelect(target as HTMLTextAreaElement)}
           ref={textareaEl}
           rows={1}
           value={lineValue}
@@ -133,11 +135,9 @@ export default function EditableLine({
         editedLineSS &&
         (isFocused || (wasLastFocused && selectionSyllables)) ? (
           <>
-            <span className={styles.ideal}>{originalLineSS?.join("-")}</span>{" "}
+            <span className={styles.ideal}>{originalLineSS.join("-")}</span>{" "}
             &rarr;{" "}
-            <span className={styles[lineStatus]}>
-              {editedLineSS?.join("-")}
-            </span>
+            <span className={styles[lineStatus]}>{editedLineSS.join("-")}</span>
           </>
         ) : null}
       </Col>

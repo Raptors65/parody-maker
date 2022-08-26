@@ -22,15 +22,88 @@ export default function EditSyllableData({
   const [isCollapseOpen, setIsCollapseOpen] = useState(false);
   const [isModalShowing, setIsModalShowing] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>
-    setSearchTerm(e.target.value);
-  const handleShow = () => setIsModalShowing(true);
-  const handleHide = () => setIsModalShowing(false);
-  const handleToggle = () => setIsCollapseOpen(!isCollapseOpen);
+  const handleTermChange = (newTerm: string) => setSearchTerm(newTerm);
+  const handleShowModal = () => setIsModalShowing(true);
+  const handleHideModal = () => setIsModalShowing(false);
+  const handleResultClick = (word: string) => setSearchTerm(word);
+  const handleToggleSearch = () => setIsCollapseOpen(!isCollapseOpen);
+
+  const addPronunciation = () =>
+    setSyllableData({
+      ...syllableData,
+      [searchTerm]:
+        searchTerm in syllableData ? [...syllableData[searchTerm], []] : [[]],
+    });
+  const deletePronunciation = (i: number) =>
+    setSyllableData({
+      ...syllableData,
+      [searchTerm]: syllableData[searchTerm]
+        .slice(0, i)
+        .concat(syllableData[searchTerm].slice(i + 1)),
+    });
+  const movePronunciationDown = (i: number) =>
+    setSyllableData({
+      ...syllableData,
+      [searchTerm]: [
+        ...syllableData[searchTerm].slice(0, i),
+        syllableData[searchTerm][i + 1],
+        syllableData[searchTerm][i],
+        ...syllableData[searchTerm].slice(i + 2),
+      ],
+    });
+  const movePronunciationUp = (i: number) =>
+    setSyllableData({
+      ...syllableData,
+      [searchTerm]: [
+        ...syllableData[searchTerm].slice(0, i - 1),
+        syllableData[searchTerm][i],
+        syllableData[searchTerm][i - 1],
+        ...syllableData[searchTerm].slice(i + 1),
+      ],
+    });
+
+  const addSyllable = (i: number) =>
+    setSyllableData({
+      ...syllableData,
+      [searchTerm]: [
+        ...syllableData[searchTerm].slice(0, i),
+        [
+          ...syllableData[searchTerm][i],
+          Object.values(Vowel)[0] + Object.values(Stress)[0],
+        ],
+        ...syllableData[searchTerm].slice(i + 1),
+      ],
+    });
+  const editVowel = (i: number, j: number, newVowel: string) =>
+    setSyllableData({
+      ...syllableData,
+      [searchTerm]: [
+        ...syllableData[searchTerm].slice(0, i),
+        [
+          ...syllableData[searchTerm][i].slice(0, j),
+          newVowel + syllableData[searchTerm][i][j].slice(-1),
+          ...syllableData[searchTerm][i].slice(j + 1),
+        ],
+        ...syllableData[searchTerm].slice(i + 1),
+      ],
+    });
+  const editStress = (i: number, j: number, newStress: string) =>
+    setSyllableData({
+      ...syllableData,
+      [searchTerm]: [
+        ...syllableData[searchTerm].slice(0, i),
+        [
+          ...syllableData[searchTerm][i].slice(0, j),
+          syllableData[searchTerm][i][j].slice(0, 2) + newStress,
+          ...syllableData[searchTerm][i].slice(j + 1),
+        ],
+        ...syllableData[searchTerm].slice(i + 1),
+      ],
+    });
 
   return (
     <>
-      <Button onClick={handleToggle} variant="primary">
+      <Button onClick={handleToggleSearch} variant="primary">
         Add Syllable Data
       </Button>
       <Collapse in={isCollapseOpen}>
@@ -38,13 +111,13 @@ export default function EditSyllableData({
           <Form onSubmit={(e) => e.preventDefault()}>
             <InputGroup>
               <Form.Control
-                onChange={handleChange}
+                onChange={({ target: { value } }) => handleTermChange(value)}
                 placeholder="Word to change"
                 required
                 type="text"
                 value={searchTerm}
               />
-              <Button onClick={handleShow} type="submit">
+              <Button onClick={handleShowModal} type="submit">
                 <BsFillPencilFill />
               </Button>
             </InputGroup>
@@ -56,7 +129,7 @@ export default function EditSyllableData({
                   .map((word) => (
                     <Button
                       key={word}
-                      onClick={() => setSearchTerm(word)}
+                      onClick={() => handleResultClick(word)}
                       variant="light"
                     >
                       {word}
@@ -67,7 +140,7 @@ export default function EditSyllableData({
           </div>
         </div>
       </Collapse>
-      <Modal show={isModalShowing} onHide={handleHide}>
+      <Modal show={isModalShowing} onHide={handleHideModal}>
         <Modal.Header closeButton>
           <Modal.Title>Edit: {searchTerm}</Modal.Title>
         </Modal.Header>
@@ -81,14 +154,7 @@ export default function EditSyllableData({
                     </h6>
                     <Button
                       className="float-end ms-2"
-                      onClick={() =>
-                        setSyllableData({
-                          ...syllableData,
-                          [searchTerm]: syllableData[searchTerm]
-                            .slice(0, i)
-                            .concat(syllableData[searchTerm].slice(i + 1)),
-                        })
-                      }
+                      onClick={() => deletePronunciation(i)}
                       variant="danger"
                     >
                       <FaRegTrashAlt />
@@ -96,17 +162,7 @@ export default function EditSyllableData({
                     {i !== syllableData[searchTerm].length - 1 ? (
                       <Button
                         className="float-end"
-                        onClick={() =>
-                          setSyllableData({
-                            ...syllableData,
-                            [searchTerm]: [
-                              ...syllableData[searchTerm].slice(0, i),
-                              syllableData[searchTerm][i + 1],
-                              pronunciation,
-                              ...syllableData[searchTerm].slice(i + 2),
-                            ],
-                          })
-                        }
+                        onClick={() => movePronunciationDown(i)}
                         variant="secondary"
                       >
                         &darr;
@@ -115,17 +171,7 @@ export default function EditSyllableData({
                     {i !== 0 ? (
                       <Button
                         className="float-end"
-                        onClick={() =>
-                          setSyllableData({
-                            ...syllableData,
-                            [searchTerm]: [
-                              ...syllableData[searchTerm].slice(0, i - 1),
-                              pronunciation,
-                              syllableData[searchTerm][i - 1],
-                              ...syllableData[searchTerm].slice(i + 1),
-                            ],
-                          })
-                        }
+                        onClick={() => movePronunciationUp(i)}
                         variant="secondary"
                       >
                         &uarr;
@@ -136,19 +182,8 @@ export default function EditSyllableData({
                         <li key={j}>
                           <Form.Select
                             className={styles.selectVowel}
-                            onChange={(e) =>
-                              setSyllableData({
-                                ...syllableData,
-                                [searchTerm]: [
-                                  ...syllableData[searchTerm].slice(0, i),
-                                  [
-                                    ...pronunciation.slice(0, j),
-                                    e.target.value + syllable.slice(-1),
-                                    ...pronunciation.slice(j + 1),
-                                  ],
-                                  ...syllableData[searchTerm].slice(i + 1),
-                                ],
-                              })
+                            onChange={({ target: { value } }) =>
+                              editVowel(i, j, value)
                             }
                             value={syllable.slice(0, 2)}
                           >
@@ -163,19 +198,8 @@ export default function EditSyllableData({
                           </Form.Select>
                           <Form.Select
                             className={styles.selectStress}
-                            onChange={(e) =>
-                              setSyllableData({
-                                ...syllableData,
-                                [searchTerm]: [
-                                  ...syllableData[searchTerm].slice(0, i),
-                                  [
-                                    ...pronunciation.slice(0, j),
-                                    syllable.slice(0, 2) + e.target.value,
-                                    ...pronunciation.slice(j + 1),
-                                  ],
-                                  ...syllableData[searchTerm].slice(i + 1),
-                                ],
-                              })
+                            onChange={({ target: { value } }) =>
+                              editStress(i, j, value)
                             }
                             value={syllable.slice(-1)}
                           >
@@ -193,43 +217,14 @@ export default function EditSyllableData({
                         </li>
                       ))}
                     </ol>
-                    <Button
-                      onClick={() =>
-                        setSyllableData({
-                          ...syllableData,
-                          [searchTerm]: [
-                            ...syllableData[searchTerm].slice(0, i),
-                            [
-                              ...pronunciation,
-                              Object.values(Vowel)[0] +
-                                Object.values(Stress)[0],
-                            ],
-                            ...syllableData[searchTerm].slice(i + 1),
-                          ],
-                        })
-                      }
-                      variant="primary"
-                    >
+                    <Button onClick={() => addSyllable(i)} variant="primary">
                       Add Syllable
                     </Button>
                     <hr />
                   </React.Fragment>
                 ))
               : null}
-            <Button
-              onClick={() =>
-                setSyllableData({
-                  ...syllableData,
-                  [searchTerm]: [
-                    ...(searchTerm in syllableData
-                      ? syllableData[searchTerm]
-                      : []),
-                    [],
-                  ],
-                })
-              }
-              variant="success"
-            >
+            <Button onClick={() => addPronunciation()} variant="success">
               Add Pronunciation
             </Button>
           </div>
