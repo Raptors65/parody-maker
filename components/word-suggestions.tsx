@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { Col, Form, Row } from "react-bootstrap";
-import SyllableData from "../data/syllable-data";
+import { SyllableDataInterface } from "../data/syllable-data";
 import styles from "../styles/WordSuggestions.module.css";
 
 type Props = {
   selectionSyllables: string[];
+  syllableData: SyllableDataInterface;
 };
 
 /**
@@ -12,7 +13,10 @@ type Props = {
  * @param {Props} props
  * @return {JSX.Element}
  */
-export default function WordSuggestions({ selectionSyllables }: Props) {
+export default function WordSuggestions({
+  selectionSyllables,
+  syllableData,
+}: Props) {
   const [checkSyllables, setCheckSyllables] = useState<boolean[]>(
     Array(selectionSyllables.length).fill(true)
   );
@@ -70,9 +74,9 @@ export default function WordSuggestions({ selectionSyllables }: Props) {
       <Col lg={4}>
         <Form.Label className={styles.label}>Suggestions</Form.Label>
         <div className={styles.suggestionsList}>
-          {Object.keys(SyllableData)
+          {Object.keys(syllableData)
             .filter((word) =>
-              SyllableData[word].some((pronunciation) => {
+              syllableData[word].some((pronunciation) => {
                 return (
                   selectionSyllables.length === pronunciation.length &&
                   selectionSyllables.every(

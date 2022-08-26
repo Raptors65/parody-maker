@@ -127,7 +127,10 @@ export default function EditableLine({
           value={lineValue}
         ></textarea>
         {wasLastFocused && selectionSyllables ? (
-          <WordSuggestions selectionSyllables={selectionSyllables} />
+          <WordSuggestions
+            selectionSyllables={selectionSyllables}
+            syllableData={syllableData}
+          />
         ) : null}
       </Col>
       <Col md={4}>
