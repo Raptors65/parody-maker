@@ -1,0 +1,15 @@
+.searchResults {
+  display: grid;
+  max-height: 200px;
+  overflow-y: scroll;
+}
+
+.selectStress {
+  display: inline-block;
+  width: 140px;
+}
+
+.selectVowel {
+  display: inline-block;
+  width: 80px;
+}

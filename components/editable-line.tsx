@@ -1,6 +1,6 @@
 import React, { MutableRefObject, useEffect, useRef, useState } from "react";
 import { Col, Row } from "react-bootstrap";
-import SyllableData from "../data/syllable-data";
+import { SyllableDataInterface } from "../data/syllable-data";
 import WordSuggestions from "./word-suggestions";
 import styles from "../styles/EditableLine.module.css";
 
@@ -13,16 +13,19 @@ enum LineStatus {
 type Props = {
   handleFocus: () => void;
   originalLine: string;
+  syllableData: SyllableDataInterface;
   wasLastFocused: boolean;
 };
 
 /**
  * Represents a line of a parody.
+ * @param {Props} props
  * @return {JSX.Element}
  */
 export default function EditableLine({
   handleFocus,
   originalLine,
+  syllableData,
   wasLastFocused,
 }: Props) {
   const [lineValue, setLineValue] = useState(originalLine);
@@ -46,8 +49,8 @@ export default function EditableLine({
     });
 
     for (const word of words) {
-      if (word in SyllableData) {
-        syllableStress.push(...SyllableData[word][0]);
+      if (word in syllableData && syllableData[word].length !== 0) {
+        syllableStress.push(...syllableData[word][0]);
       } else {
         return undefined;
       }

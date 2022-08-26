@@ -2,6 +2,8 @@ import type { GetServerSideProps, NextPage } from "next";
 import React, { useState } from "react";
 import EditableLine from "../components/editable-line";
 import { getLyrics } from "../api/genius";
+import SyllableData from "../data/syllable-data";
+import EditSyllableData from "../components/edit-syllable.data";
 
 type Props = {
   artist: string;
@@ -12,26 +14,33 @@ type Props = {
 
 const CreateLyrics: NextPage<Props> = ({ originalLyrics, success }: Props) => {
   const [lastFocused, setLastFocused] = useState<string | undefined>(undefined);
+  const [syllableData, setSyllableData] = useState(SyllableData);
 
   if (success) {
     return (
-      <div>
-        {originalLyrics.map((paragraph, i) => (
-          <div className="mb-3" key={i}>
-            {paragraph.map((line, j) => {
-              return (
-                <React.Fragment key={j}>
+      <>
+        <EditSyllableData
+          syllableData={syllableData}
+          setSyllableData={setSyllableData}
+        />
+        <div className="mt-5">
+          {originalLyrics.map((paragraph, i) => (
+            <div className="mb-3" key={i}>
+              {paragraph.map((line, j) => {
+                return (
                   <EditableLine
                     handleFocus={() => setLastFocused(`${i}-${j}`)}
-                    wasLastFocused={lastFocused === `${i}-${j}`}
+                    key={j}
                     originalLine={line}
+                    syllableData={syllableData}
+                    wasLastFocused={lastFocused === `${i}-${j}`}
                   />
-                </React.Fragment>
-              );
-            })}
-          </div>
-        ))}
-      </div>
+                );
+              })}
+            </div>
+          ))}
+        </div>
+      </>
     );
   } else {
     return <p>Error</p>;
