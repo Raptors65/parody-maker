@@ -29,26 +29,30 @@ export default function EditableLine({
   wasLastFocused,
 }: Props) {
   const [lineValue, setLineValue] = useState(originalLine);
+  const [originalLineValue, setOriginalLineValue] = useState(originalLine);
   const [isFocused, setIsFocused] = useState(false);
   const [selection, setSelection] = useState("");
-  const textareaEl: MutableRefObject<HTMLTextAreaElement | null> = useRef(null);
+  const originalLineEl: MutableRefObject<HTMLTextAreaElement | null> =
+    useRef(null);
+  const newLineEl: MutableRefObject<HTMLTextAreaElement | null> = useRef(null);
 
   useEffect(() => {
-    textareaEl.current!.style.height = `${textareaEl.current?.scrollHeight}px`;
+    originalLineEl.current!.style.height = `${originalLineEl.current?.scrollHeight}px`;
+    newLineEl.current!.style.height = `${newLineEl.current?.scrollHeight}px`;
   }, []);
 
   const getSyllables = (lineString: string) => {
     const syllableStress = [];
 
     const words = lineString.split(" ").map((word) => {
-      let newWord = word;
+      let newWord = word.toLowerCase();
       if (
-        !(newWord in syllableData && syllableData[word].length !== 0) &&
+        !(newWord in syllableData && syllableData[newWord].length !== 0) &&
         newWord.endsWith("'s")
       ) {
         newWord = newWord.slice(0, -2);
       }
-      return newWord.replaceAll(new RegExp("[,?!.()]", "g"), "").toLowerCase();
+      return newWord.replaceAll(/[,?!.()]/g, "");
     });
 
     for (const word of words) {
@@ -68,7 +72,7 @@ export default function EditableLine({
     );
   };
 
-  const originalLineSS = getSyllableStress(originalLine);
+  const originalLineSS = getSyllableStress(originalLineValue);
   const editedLineSS = getSyllableStress(lineValue.trim());
   const selectionSyllables = getSyllables(selection.trim());
 
@@ -89,11 +93,22 @@ export default function EditableLine({
   const lineStatus = checkSyllableStress();
 
   const handleBlur = () => setIsFocused(false);
-  const handleChange = (target: HTMLTextAreaElement) => {
+  const handleOriginalLineChange = (target: HTMLTextAreaElement) => {
+    target.value = target.value.replaceAll("\n", "");
+    // If the line hasn't been changed, update parody line as well
+    if (originalLineValue === lineValue) {
+      setLineValue(target.value);
+    }
+    setOriginalLineValue(target.value);
+    originalLineEl.current!.style.height = "auto";
+    originalLineEl.current!.style.height = `${originalLineEl.current?.scrollHeight}px`;
+  };
+
+  const handleNewLineChange = (target: HTMLTextAreaElement) => {
     target.value = target.value.replaceAll("\n", "");
     setLineValue(target.value);
-    textareaEl.current!.style.height = "auto";
-    textareaEl.current!.style.height = `${textareaEl.current?.scrollHeight}px`;
+    newLineEl.current!.style.height = "auto";
+    newLineEl.current!.style.height = `${newLineEl.current?.scrollHeight}px`;
   };
   const handleSelect = (target: HTMLTextAreaElement) =>
     setSelection(
@@ -111,24 +126,30 @@ export default function EditableLine({
       }
     >
       <Col className={styles.originalLine} md={4}>
-        {originalLine}
+        <textarea
+          className={styles.lineTextarea}
+          onChange={({ target }) => handleOriginalLineChange(target)}
+          ref={originalLineEl}
+          rows={1}
+          value={originalLineValue}
+        />
       </Col>
       <Col md={4}>
         <textarea
           className={`${styles.lineTextarea} ${styles[lineStatus]}`}
           onBlur={handleBlur}
           onChange={({ target }) => {
-            handleChange(target as HTMLTextAreaElement);
+            handleNewLineChange(target as HTMLTextAreaElement);
           }}
           onFocus={() => {
             setIsFocused(true);
             handleFocus();
           }}
           onSelect={({ target }) => handleSelect(target as HTMLTextAreaElement)}
-          ref={textareaEl}
+          ref={newLineEl}
           rows={1}
           value={lineValue}
-        ></textarea>
+        />
         {wasLastFocused && selectionSyllables ? (
           <WordSuggestions
             selectionSyllables={selectionSyllables}
