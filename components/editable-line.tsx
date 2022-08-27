@@ -125,7 +125,7 @@ export default function EditableLine({
           : undefined
       }
     >
-      <Col className={styles.originalLine} md={4}>
+      <Col md={4}>
         <textarea
           className={styles.lineTextarea}
           onChange={({ target }) => handleOriginalLineChange(target)}
