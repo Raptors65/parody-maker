@@ -22,7 +22,11 @@ export default function EditSyllableData({
   const [isCollapseOpen, setIsCollapseOpen] = useState(false);
   const [isModalShowing, setIsModalShowing] = useState(false);
 
-  const handleTermChange = (newTerm: string) => setSearchTerm(newTerm);
+  const handleTermChange = (target: HTMLInputElement) => {
+    target.value = target.value.toLowerCase();
+    target.value = target.value.replaceAll(/[^a-z0-9'-.]/g, "");
+    setSearchTerm(target.value);
+  };
   const handleShowModal = () => setIsModalShowing(true);
   const handleHideModal = () => setIsModalShowing(false);
   const handleResultClick = (word: string) => setSearchTerm(word);
@@ -111,7 +115,9 @@ export default function EditSyllableData({
           <Form onSubmit={(e) => e.preventDefault()}>
             <InputGroup>
               <Form.Control
-                onChange={({ target: { value } }) => handleTermChange(value)}
+                onChange={({ target }) =>
+                  handleTermChange(target as HTMLInputElement)
+                }
                 placeholder="Word to change"
                 required
                 type="text"

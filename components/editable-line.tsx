@@ -42,7 +42,10 @@ export default function EditableLine({
 
     const words = lineString.split(" ").map((word) => {
       let newWord = word;
-      if (newWord.endsWith("'s")) {
+      if (
+        !(newWord in syllableData && syllableData[word].length !== 0) &&
+        newWord.endsWith("'s")
+      ) {
         newWord = newWord.slice(0, -2);
       }
       return newWord.replaceAll(new RegExp("[,?!.()]", "g"), "").toLowerCase();
